@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/festival")
+@CrossOrigin("*")
 public class FestivalResource {
 
     @Autowired
@@ -37,7 +39,7 @@ public class FestivalResource {
     }
 
     @GetMapping("{festivalId}")
-    public ResponseEntity<Festival> findById(@PathVariable int festivalId) {
+    public ResponseEntity<Festival> findById(@PathVariable Integer festivalId) {
 
         Optional<Festival> dbFestival = festivalService.findById(festivalId);
 

@@ -19,6 +19,8 @@ public class ErrorResponse {
     
     @NonNull
     private String message;
+
+    @Builder.Default
     private List<String> details = new ArrayList<>();
 
     @NonNull

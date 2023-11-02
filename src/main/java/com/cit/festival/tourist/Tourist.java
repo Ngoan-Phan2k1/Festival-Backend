@@ -1,7 +1,9 @@
 package com.cit.festival.tourist;
 
+import com.cit.festival.image.Image;
 import com.cit.festival.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,9 +36,13 @@ public class Tourist {
     @Email(message = "Email invalid")
     private String email;
 
-    @NotEmpty(message = "Phone cannot be empty")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone must be a 10-digit number")
-    private String phone;
+    //@NotEmpty(message = "Phone cannot be empty")
+    // @Pattern(regexp = "^[0-9]{10}$", message = "Số điện thoại không hợp lệ")
+    // private String phone;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "image_id", nullable = true)
+    private Image image;
 
     @OneToOne
     @JoinColumn(name = "fk_user_id")

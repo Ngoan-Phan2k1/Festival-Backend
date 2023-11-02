@@ -23,9 +23,10 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors((a) -> a.disable())
             .authorizeHttpRequests(auth -> {
                 auth
-                    .requestMatchers("/api/auth/**", "/api/**")
+                    .requestMatchers("/api/auth/**", "/api/festival/**", "/api/tour/**", "/api/**")
                     .permitAll()
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                     .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "USER")
@@ -42,5 +43,8 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
+
+    
     
 }
