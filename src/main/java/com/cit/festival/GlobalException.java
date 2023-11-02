@@ -15,7 +15,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.cit.festival.exception.AuthenticationException;
+import com.cit.festival.exception.BookedTourException;
+import com.cit.festival.exception.HotelException;
 import com.cit.festival.exception.NotFoundException;
+import com.cit.festival.exception.PaymentException;
+import com.cit.festival.exception.RoomException;
+import com.cit.festival.exception.TourException;
 
 @RestControllerAdvice
 public class GlobalException {
@@ -46,6 +52,36 @@ public class GlobalException {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(BookedTourException.class)
+    public ResponseEntity<ErrorResponse> handleBookedTourException(BookedTourException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentException(PaymentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(HotelException.class)
+    public ResponseEntity<ErrorResponse> handleHotelException(HotelException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(RoomException.class)
+    public ResponseEntity<ErrorResponse> handleRoomException(RoomException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
+    }
+
+    @ExceptionHandler(TourException.class)
+    public ResponseEntity<ErrorResponse> handleRoomException(TourException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString()));
     }
 
