@@ -11,4 +11,5 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
     
     List<Tour> findAllByOrderById();
     boolean existsById(Integer id);
+    List<Tour> findAllByActiveIsTrueOrderById();
 }

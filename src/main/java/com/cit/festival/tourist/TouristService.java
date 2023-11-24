@@ -3,15 +3,18 @@ package com.cit.festival.tourist;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cit.festival.StringUtils;
+import com.cit.festival.booktour.BookedTour;
+import com.cit.festival.booktour.BookedTourRepository;
 import com.cit.festival.exception.NotFoundException;
+import com.cit.festival.hotel.Hotel;
 import com.cit.festival.image.Image;
 import com.cit.festival.image.ImageDTO;
 import com.cit.festival.image.ImageService;
-import com.cit.festival.tour.TourDTO;
 import com.cit.festival.user.User;
 import com.cit.festival.user.UserRepository;
 
@@ -21,14 +24,22 @@ import jakarta.transaction.Transactional;
 @Service
 public class TouristService {
     
-    @Autowired
-    private TouristRepository touristRepository;
+    private final TouristRepository touristRepository;
+    private final ImageService imageService;
+    private final UserRepository userRepository;
+    private final BookedTourRepository bookedTourRepository;
 
-    @Autowired
-    private ImageService imageService;
-
-    @Autowired
-    private UserRepository userRepository;
+    public TouristService(
+        TouristRepository touristRepository,
+        ImageService imageService,
+        UserRepository userRepository,
+        BookedTourRepository bookedTourRepository
+    ) {
+        this.touristRepository = touristRepository;
+        this.imageService = imageService;
+        this.userRepository = userRepository;
+        this.bookedTourRepository = bookedTourRepository;
+    }
 
     @Transactional
     public TouristDTO findByUserName(String username) {
@@ -37,16 +48,9 @@ public class TouristService {
             Image image = tourist.getImage();
             ImageDTO imageDTO = null;
             if (image != null) {
-                imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
+                imageDTO = StringUtils.createImageDTO(image);
             }
-            TouristDTO touristDTO = new TouristDTO(
-                tourist.getId(),
-                tourist.getFullname(),
-                tourist.getUser().getUsername(),
-                tourist.getEmail(),
-                //tourist.getPhone(), 
-                imageDTO
-            );
+            TouristDTO touristDTO = StringUtils.createTouristDTO(tourist, imageDTO);
             return touristDTO;
         }
         return null;
@@ -54,22 +58,17 @@ public class TouristService {
 
     @Transactional
     public TouristDTO findById(Integer id) {
-        Optional<Tourist> tourist = touristRepository.findById(id);
-        if (tourist.isPresent()) {
+        Optional<Tourist> optTourist = touristRepository.findById(id);
+        if (optTourist.isPresent()) {
+            Tourist tourist = optTourist.get();
 
-            Image image = tourist.get().getImage();
+            Image image = tourist.getImage();
             ImageDTO imageDTO = null;
             if (image != null) {
-                imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
+                imageDTO = StringUtils.createImageDTO(image);
             }
-            TouristDTO touristDTO = new TouristDTO(
-                tourist.get().getId(),
-                tourist.get().getFullname(),
-                tourist.get().getUser().getUsername(),
-                tourist.get().getEmail(),
-                //tourist.get().getPhone(), 
-                imageDTO
-            );
+
+            TouristDTO touristDTO = StringUtils.createTouristDTO(tourist, imageDTO);
             return touristDTO;
         }
 
@@ -81,24 +80,18 @@ public class TouristService {
 
         List<Tourist> tourists = touristRepository.findAll();
         List<TouristDTO> touristDTOs = new ArrayList<>();
-        for (Tourist tourist : tourists) {
+        touristDTOs = tourists.stream()
+            .map(tourist -> {
 
-            Image image = tourist.getImage();
-            ImageDTO imageDTO = null;
-            if (image != null) {
-                imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
-            }
-            TouristDTO touristDTO = new TouristDTO(
-                tourist.getId(),
-                tourist.getFullname(),
-                tourist.getUser().getUsername(),
-                tourist.getEmail(),
-                //tourist.getPhone(), 
-                imageDTO
-            );
+                Image image = tourist.getImage();
+                ImageDTO imageDTO = null;
+                if (image != null) {
+                    imageDTO = StringUtils.createImageDTO(image);
+                }
 
-            touristDTOs.add(touristDTO);
-        }
+                return StringUtils.createTouristDTO(tourist, imageDTO);
+            })
+            .collect(Collectors.toList());
 
         return touristDTOs;
     }
@@ -106,41 +99,51 @@ public class TouristService {
     @Transactional
     public TouristDTO update(TouristPut tourist, Integer tourist_id, String image_name) {
 
-        Optional<Tourist> touristDB = touristRepository.findById(tourist_id);
-        if (!touristDB.isPresent()) {
-            throw new NotFoundException("Không tìm thấy người dùng");
-        }
+        Optional<Tourist> optTourist = touristRepository.findById(tourist_id);
+        Tourist touristDB = optTourist.orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
 
         Optional<Image> new_image = imageService.findByName(image_name);
         Image imageUpdate = null;
         ImageDTO imageDTO = null;
-        if (!new_image.isPresent() && touristDB.get().getImage() != null) {
-            imageUpdate = touristDB.get().getImage();  //Lấy lại ảnh cũ nếu ko update ảnh mới
-            imageDTO = new ImageDTO(imageUpdate.getId(), imageUpdate.getName(), imageUpdate.getType());
+        if (!new_image.isPresent() && touristDB.getImage() != null) {
+            imageUpdate = touristDB.getImage();  //Lấy lại ảnh cũ nếu ko update ảnh mới
+            imageDTO = StringUtils.createImageDTO(imageUpdate);
         }
         else if (new_image.isPresent()) {
             imageUpdate = new_image.get();
-            imageDTO = new ImageDTO(new_image.get().getId(), new_image.get().getName(), new_image.get().getType());  
+            imageDTO = StringUtils.createImageDTO(imageUpdate);
         }
 
-        touristDB.get().setFullname(tourist.getFullname());
-        touristDB.get().setEmail(tourist.getEmail());
-        touristDB.get().setImage(imageUpdate);
+        touristDB.setFullname(tourist.getFullname());
+        touristDB.setEmail(tourist.getEmail());
+        touristDB.setImage(imageUpdate);
         
-        User user = touristDB.get().getUser();
+        User user = touristDB.getUser();
         user.setUsername(tourist.getUsername());
         userRepository.save(user);
-        Tourist tourist_saved = touristRepository.save(touristDB.get());
-        TouristDTO touristDTO = new TouristDTO(
-            tourist_saved.getId(),
-            tourist_saved.getFullname(),
-            tourist_saved.getUser().getUsername(),
-            tourist_saved.getEmail(),
-            imageDTO
-        );
+        Tourist tourist_saved = touristRepository.save(touristDB);
+        TouristDTO touristDTO = StringUtils.createTouristDTO(tourist_saved, imageDTO);
         
         return touristDTO;
+    }
 
+    @Transactional
+    public List<TouristDTO> deleteById(Integer id) {
+
+        Optional<Tourist> optTourist = touristRepository.findById(id);
+        Tourist tourist = optTourist.orElseThrow(() -> new NotFoundException("Không tìm thấy tourist"));
+        
+        List<BookedTour> bookedTours =  bookedTourRepository.findAllByTouristId(id);
+        bookedTours.stream()
+            .map(booked -> {
+                booked.setTourist(null);
+                return bookedTourRepository.save(booked);
+            })
+            .collect(Collectors.toList());
+        
+        userRepository.deleteById(tourist.getUser().getId());
+        touristRepository.deleteById(id);
+        return findAll();
     }
 
 }

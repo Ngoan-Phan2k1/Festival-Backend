@@ -3,7 +3,6 @@ package com.cit.festival.payment;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails.Address;
 
 import com.cit.festival.booktour.BookedTour;
 
@@ -26,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Entity
 public class Payment {
 
@@ -34,21 +33,21 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // trường tăng tự động
     private Integer id;
 
-    @NonNull
+    //@NonNull
     @NotNull(message = "Amount cannot be null")
     private Integer amount;
 
-    @NonNull
-    @NotNull(message = " cannot be null")
+    //@NonNull
+    @NotNull(message = "vnp_TxnRef cannot be null")
     private String vnp_TxnRef;
 
     @CreationTimestamp
     private LocalDateTime dateOfCheckout; 
 
-    @NonNull
+    //@NonNull
     @OneToOne
     @JoinColumn(name = "bookedtour_id")
-    @NotNull(message = "Booked cannot be null")
+    //@NotNull(message = "Booked cannot be null")
     private BookedTour bookedTour;
 
 }

@@ -24,11 +24,14 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user/booked")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class BookedTourResource {
     
-    @Autowired
     private BookedTourService bookedTourService;
+
+    public BookedTourResource(BookedTourService bookedTourService) {
+        this.bookedTourService = bookedTourService;
+    }
 
     @GetMapping
     public ResponseEntity<List<BookedTourDTO>> findAll() {
@@ -37,6 +40,12 @@ public class BookedTourResource {
         return ResponseEntity.status(HttpStatus.OK).body(bookedTours);
     }
 
+    @GetMapping("/{bookedtour_id}")
+    public ResponseEntity<BookedTourDTO> findById(@PathVariable Integer bookedtour_id) {
+
+        BookedTourDTO bookedToursDTO = bookedTourService.findById(bookedtour_id);
+        return ResponseEntity.status(HttpStatus.OK).body(bookedToursDTO);
+    }
 
     @GetMapping("tourist/{touristId}")
     public ResponseEntity<List<BookedTourDTO>> findAllByTouristId(@PathVariable Integer touristId) {
@@ -52,12 +61,21 @@ public class BookedTourResource {
         return ResponseEntity.status(HttpStatus.OK).body(bookedTourDB);
     }
 
-    @PatchMapping("/{bookedtourId}")
+    @PatchMapping("checkout/{bookedtourId}")
     public ResponseEntity<BookedTourDTO> updateBookedTourIsCheckout(
         @PathVariable Integer bookedtourId,
         @RequestParam(value = "isCheckout") Boolean isCheckout
     ) {
         BookedTourDTO updatedBookedTour = bookedTourService.updateBookedTourCheckout(bookedtourId, isCheckout);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedBookedTour);
+    }
+
+    @PatchMapping("status/{bookedtour_id}")
+    public ResponseEntity<BookedTourDTO> updateBookedTourStatus(
+        @PathVariable Integer bookedtour_id,
+        @RequestParam(value = "status") Integer status
+    ) {
+        BookedTourDTO updatedBookedTour = bookedTourService.updateBookedTourStatus(bookedtour_id, status);
         return ResponseEntity.status(HttpStatus.OK).body(updatedBookedTour);
     }
 
@@ -67,6 +85,16 @@ public class BookedTourResource {
         @RequestParam(value = "touristId") Integer touristId
     ) {
         List<BookedTourDTO> bookedToursDTO = bookedTourService.deleteById(id, touristId);
+        
+        //return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.OK).body(bookedToursDTO);
+    }
+
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<List<BookedTourDTO>> adminDeleteById(
+        @PathVariable Integer id
+    ) {
+        List<BookedTourDTO> bookedToursDTO = bookedTourService.adminDeleteById(id);
         
         //return ResponseEntity.noContent().build();
         return ResponseEntity.status(HttpStatus.OK).body(bookedToursDTO);

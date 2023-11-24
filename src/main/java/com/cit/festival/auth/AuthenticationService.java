@@ -22,7 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -31,6 +31,20 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    public AuthenticationService(
+        UserRepository userRepository,
+        TouristRepository touristRepository,
+        PasswordEncoder passwordEncoder,
+        JwtService jwtService,
+        AuthenticationManager authenticationManager
+    ) {
+        this.userRepository = userRepository;
+        this.touristRepository = touristRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
+
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
 
@@ -38,8 +52,6 @@ public class AuthenticationService {
         if (userDB.isPresent()) {
             throw new AuthenticationException("Tên đăng nhập đã tồn tại");
         }
-
-
 
         var user = User.builder()
         // .firstname(request.getFirstname())
@@ -66,7 +78,9 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
             .token(jwtToken)
             .touristId(touristDB.getId())
+            .email(touristDB.getEmail())
             .username(request.getUsername())
+            .role(touristDB.getUser().getRole())
             .fullname(request.getFullname())
             .tokenExpirationDate(SecurityConstant.JWT_EXPIRATION)
             .build();
@@ -74,9 +88,6 @@ public class AuthenticationService {
 
     @Transactional
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-
-        // var user = userRepository.findByUsername(request.getUsername())
-        //     .orElseThrow(() -> new AuthenticationException("Vui lòng kiểm tra lại tài khoản và mật khẩu"));
        
         var user = userRepository.findByUsername(request.getUsername())
             .orElseThrow(() -> new AuthenticationException("Vui lòng kiểm tra lại tài khoản và mật khẩu"));
@@ -105,10 +116,10 @@ public class AuthenticationService {
         .touristId(touristDB.getId())
         .fullname(touristDB.getFullname())
         .username(user.getUsername())
+        .role(touristDB.getUser().getRole())
         .email(touristDB.getEmail())
         .tokenExpirationDate(SecurityConstant.JWT_EXPIRATION)
         .build();
-        
-        
+          
     }
 }

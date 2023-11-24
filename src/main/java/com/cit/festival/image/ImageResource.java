@@ -27,23 +27,11 @@ import com.cit.festival.hotel.Hotel;
 @RequestMapping("/api/image")
 public class ImageResource {
 
-    @Autowired
 	private ImageService service;
 
-    // @PostMapping("/hotel")
-	// public ResponseEntity<?> uploadHotelImage(
-	// 	//@RequestParam(value = "name", required = false) String name,
-	// 	@RequestParam("image") MultipartFile file,
-	// 	@RequestParam(value = "hotelId") Integer hotelId
-	// 	) throws IOException {
-
-	// 	//System.out.println("Hotel ID: " + hotelId);
-
-	// 	String uploadImage = service.uploadHotelImage(file, hotelId);
-	// 	return ResponseEntity.status(HttpStatus.OK)
-	// 			.body(uploadImage);
-	// }
-
+	public ImageResource(ImageService service) {
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<ImageDTO> uploadImage(
@@ -62,20 +50,6 @@ public class ImageResource {
 		// return ResponseEntity.status(HttpStatus.OK)
 		// 		.body(uploadImage);
 	}
-
-	// @PostMapping("/room")
-	// public ResponseEntity<?> uploadRoomImage(
-	// 	//@RequestParam(value = "name", required = false) String name,
-	// 	@RequestParam("image") MultipartFile file,
-	// 	@RequestParam(value = "roomId") Integer roomId
-	// 	) throws IOException {
-
-	// 	//System.out.println("Hotel ID: " + hotelId);
-
-	// 	String uploadImage = service.uploadRoomImage(file, roomId);
-	// 	return ResponseEntity.status(HttpStatus.OK)
-	// 			.body(uploadImage);
-	// }
 
 	@GetMapping("/{fileName}")
 	public ResponseEntity<Image> findImageByName(@PathVariable String fileName){
@@ -106,28 +80,8 @@ public class ImageResource {
 
 	@GetMapping("/all")
     public ResponseEntity<List<Image>> findAll() {
-
         List<Image> images = service.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(images);
     }
-
-	// @GetMapping("/hotel/{hotelId}")
-    // public ResponseEntity<List<ImageDTO>> findByHotelId(
-	// 	@PathVariable Integer hotelId
-	// ) {
-
-    //     List<ImageDTO> imagesDtos = service.findByHotelId(hotelId);
-    //     return ResponseEntity.status(HttpStatus.OK).body(imagesDtos);
-    // }
-
-	// @GetMapping
-	// public ResponseEntity<?> downloadAllImage(){
-	// 	List<byte[]> images = new ArrayList<>();
-	// 	images = service.downloadAllImage();
-	// 	return ResponseEntity.status(HttpStatus.OK)
-	// 			.contentType(MediaType.valueOf("image/jpg"))
-	// 			.body(images);
-
-	// }
 
 }

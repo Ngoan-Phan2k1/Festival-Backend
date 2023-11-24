@@ -30,11 +30,16 @@ import jakarta.validation.Valid;
 @CrossOrigin("*")
 public class HotelResource {
     
-    @Autowired
     private HotelService hotelService;
-
-    @Autowired
     private HotelRepository hotelRepository;
+
+    public HotelResource(
+        HotelService hotelService,
+        HotelRepository hotelRepository
+    ) {
+        this.hotelService = hotelService;
+        this.hotelRepository = hotelRepository;
+    }
 
     @GetMapping
     public ResponseEntity<List<HotelDTO>> findAll() {

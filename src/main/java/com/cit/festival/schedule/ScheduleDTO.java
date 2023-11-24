@@ -4,6 +4,7 @@ import com.cit.festival.image.Image;
 import com.cit.festival.image.ImageDTO;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class ScheduleDTO {
     
     private Integer id;

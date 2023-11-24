@@ -43,33 +43,32 @@ public class ContactService {
     @Transactional
     public ContactDTO add(Contact contact) {
 
-        Optional<Contact> contactDB = contactRepository.findAllByRoomIdAndTouristId(contact.getRoom().getId(), contact.getTourist().getId());
+        // Optional<Contact> contactDB = contactRepository.findAllByRoomIdAndTouristId(contact.getRoom().getId(), contact.getTourist().getId());
 
-        if (contactDB.isPresent()) {
-            throw new NotFoundException("Phòng đang trong quá trình liên hệ với quý khách");
-        }
+        // if (contactDB.isPresent()) {
+        //     throw new NotFoundException("Phòng đang trong quá trình liên hệ với quý khách");
+        // }
 
-        
+        // RoomDTO roomDTO = roomService.findById(contact.getRoom().getId());
+        // Optional<Tourist> tourist = touristService.findById(contact.getTourist().getId());
 
-        RoomDTO roomDTO = roomService.findById(contact.getRoom().getId());
-        Optional<Tourist> tourist = touristService.findById(contact.getTourist().getId());
+        // if (!tourist.isPresent()) {
+        //     throw new NotFoundException("Không tìm thấy người đặt" );
+        // }
+        // Contact contactSaved = contactRepository.save(contact);
 
-        if (!tourist.isPresent()) {
-            throw new NotFoundException("Không tìm thấy người đặt" );
-        }
-        Contact contactSaved = contactRepository.save(contact);
+        // ContactDTO contactDTO = new ContactDTO(
+        //     contactSaved.getId(),
+        //     contactSaved.getTourist().getId(),
+        //     contactSaved.getFullname(),
+        //     contactSaved.getEmail(),
+        //     contactSaved.getPhone(),
+        //     roomDTO
+        // );
 
-        ContactDTO contactDTO = new ContactDTO(
-            contactSaved.getId(),
-            contactSaved.getTourist().getId(),
-            contactSaved.getFullname(),
-            contactSaved.getEmail(),
-            contactSaved.getPhone(),
-            roomDTO
-        );
+        // return contactDTO;
 
-        return contactDTO;
-
+        return null;
         
     }
 

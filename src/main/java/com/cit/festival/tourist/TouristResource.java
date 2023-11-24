@@ -1,12 +1,12 @@
 package com.cit.festival.tourist;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cit.festival.exception.NotFoundException;
-import com.cit.festival.tour.Tour;
-import com.cit.festival.tour.TourDTO;
 
 import jakarta.validation.Valid;
 
@@ -26,8 +24,11 @@ import jakarta.validation.Valid;
 @CrossOrigin("*")
 public class TouristResource {
     
-    @Autowired
     private TouristService touristService;
+
+    public TouristResource(TouristService touristService) {
+        this.touristService = touristService;
+    }
 
     @GetMapping
     public ResponseEntity<List<TouristDTO>> findAll() {
@@ -63,5 +64,14 @@ public class TouristResource {
         
         TouristDTO touristDTO = touristService.update(tourist, tourist_id, image_name);
         return ResponseEntity.status(HttpStatus.OK).body(touristDTO);
+    }
+
+    @DeleteMapping("/{tourist_id}")
+    public ResponseEntity<List<TouristDTO>> deleteById(
+        @PathVariable Integer tourist_id
+    ) {
+        List<TouristDTO> touristDTOs = touristService.deleteById(tourist_id);
+        
+        return ResponseEntity.status(HttpStatus.OK).body(touristDTOs);
     }
 }
