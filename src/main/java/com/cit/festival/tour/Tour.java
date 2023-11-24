@@ -24,6 +24,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -77,6 +78,14 @@ public class Tour {
     
     @NotNull(message = "Booked cannot be empty")
     private Integer booked;
+
+    @Builder.Default
+    private Boolean active = true;
+
+    // @PrePersist
+    // public void prePersist() {
+    //     this.active = true;
+    // }
 
     @ManyToOne
     @JoinColumn(name = "festival_id", nullable = false) // Tên cột khoá ngoại

@@ -65,6 +65,10 @@ public class BookedTour {
     @NotNull(message = "IsCheckout cannot be empty")
     private Boolean isCheckout = false;
 
+    @Builder.Default
+    @NotNull(message = "Status cannot be empty")
+    private Integer status = 0;
+
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
@@ -76,7 +80,7 @@ public class BookedTour {
 
     @ManyToOne
     @JoinColumn(name = "tourist_id", nullable = false) // Tên cột khoá ngoại
-    @NotNull(message = "Tourist cannot be null")
+    //@NotNull(message = "Tourist cannot be null")
     private Tourist tourist;
 
     @CreationTimestamp

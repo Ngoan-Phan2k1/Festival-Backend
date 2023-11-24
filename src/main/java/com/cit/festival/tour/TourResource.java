@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cit.festival.exception.NotFoundException;
-import com.cit.festival.festival.Festival;
-import com.cit.festival.schedule.Schedule;
-import com.cit.festival.schedule.ScheduleDTO;
+
 
 import jakarta.validation.Valid;
 
@@ -32,6 +30,10 @@ public class TourResource {
     
     @Autowired
     private TourService tourService;
+
+    public TourResource(TourService tourService) {
+        this.tourService = tourService;
+    }
 
     @PostMapping
     public ResponseEntity<TourDTO> add(
@@ -61,16 +63,23 @@ public class TourResource {
         return ResponseEntity.status(HttpStatus.OK).body(tourDTOs);
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<TourDTO>> findAllActive() {
+
+        List<TourDTO> tourDTOs = tourService.findToursActive();
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTOs);
+    }
+
     @GetMapping("{tourId}")
     public ResponseEntity<TourDTO> findById(@PathVariable Integer tourId) {
 
-        TourDTO tourDTO = tourService.findById(tourId);
+        Optional<TourDTO> tourDTO = tourService.findById(tourId);
 
-        if (tourDTO == null) {
+        if (!tourDTO.isPresent()) {
             throw new NotFoundException("Không tìm thấy tour");
            
         }
-        return ResponseEntity.status(HttpStatus.OK).body(tourDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTO.get());
     }
 
     @PatchMapping("/{tourId}/{booked}")
@@ -79,6 +88,15 @@ public class TourResource {
         @PathVariable Integer booked
     ) {
         TourDTO updatedTour = tourService.updateTourBooked(tourId, booked);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedTour);
+    }
+
+    @PatchMapping("/{tour_id}")
+    public ResponseEntity<TourDTO> updateTourActive(
+        @PathVariable Integer tour_id,
+        @RequestParam(value = "active", required = true) boolean active
+    ) {
+        TourDTO updatedTour = tourService.updateTourActive(tour_id, active);
         return ResponseEntity.status(HttpStatus.OK).body(updatedTour);
     }
 

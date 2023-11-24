@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,8 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cit.festival.booktour.BookedTour;
+import com.cit.festival.booktour.BookedTourRepository;
+import com.cit.festival.booktour.BookedTourService;
 import com.cit.festival.exception.NotFoundException;
 import com.cit.festival.exception.PaymentException;
+import com.cit.festival.room.RoomDTO;
 
 
 @RestController
@@ -35,8 +39,32 @@ import com.cit.festival.exception.PaymentException;
 @CrossOrigin("*")
 public class PaymentResource {
 
-    @Autowired
     private PaymentService paymentService;
+    private BookedTourRepository bookedTourRepository;
+
+    public PaymentResource(
+        PaymentService paymentService,
+        BookedTourRepository bookedTourRepository
+    ) {
+        this.paymentService = paymentService;
+        this.bookedTourRepository = bookedTourRepository;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PaymentResponseDTO>> findAll() {
+        List<PaymentResponseDTO> paymentResponseDTOs = paymentService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(paymentResponseDTOs);
+    }
+
+    @GetMapping("/date")
+    public ResponseEntity<List<PaymentResponseDTO>> findInDateRange(
+        @RequestParam LocalDate fromDate,
+        @RequestParam LocalDate toDate
+    ) {
+        List<PaymentResponseDTO> paymentResponseDTOs = paymentService.findInDateRange(fromDate, toDate);
+        return ResponseEntity.status(HttpStatus.OK).body(paymentResponseDTOs);
+    }
+
     
     @GetMapping("/create_payment")
     public ResponseEntity<?> creatPayment(
@@ -134,7 +162,6 @@ public class PaymentResource {
         return ResponseEntity.status(HttpStatus.OK).body(paymentResponse);
     }
 
-
     @GetMapping("/payment_infor")
     public ResponseEntity<?> transaction(
     //    @RequestParam(value = "vnp_Amount") String amount,
@@ -178,15 +205,22 @@ public class PaymentResource {
         if (signValue.equals(vnp_SecureHash)) {
             if (vnp_ResponseCode.equals("00")) {
 
-                BookedTour bookedTour = new BookedTour(bookedtourId, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                //BookedTour bookedTour = new BookedTour(bookedtourId, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                Optional <BookedTour> bookedTour = bookedTourRepository.findById(bookedtourId);
+
                 Integer amount = Integer.parseInt(vnp_Amount);
-                Payment payment = new Payment(amount/100, vnp_TxnRef, bookedTour);
+                // Payment payment = new Payment(amount/100, vnp_TxnRef, bookedTour.get());
+                Payment payment = Payment.builder()
+                                    .amount(amount/100)
+                                    .vnp_TxnRef(vnp_TxnRef)
+                                    .bookedTour(bookedTour.get())
+                                    .build();
+                                    
                 Payment paymentDB = paymentService.add(payment);
                 return ResponseEntity.status(HttpStatus.OK).body(paymentDB);
 
             }
             throw new PaymentException("Giao dịch không thành công");
-           
         }
         throw new PaymentException("Giao dịch không thành công");
        
@@ -202,9 +236,7 @@ public class PaymentResource {
         //     throw new PaymentException("Giao dịch không thành công");
         // }
 
-        
-
         //return ResponseEntity.status(HttpStatus.OK).build();
-
     }
+
 }

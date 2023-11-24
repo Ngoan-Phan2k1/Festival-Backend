@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +34,9 @@ public class RoomResource {
     @Autowired
     private RoomService roomService;
 
-    @Autowired
-    private ImageService imageService;
+   public RoomResource(RoomService roomService) {
+    this.roomService = roomService;
+   }
 
     @GetMapping
     public ResponseEntity<List<RoomDTO>> findAll() {
@@ -77,5 +79,14 @@ public class RoomResource {
     ) {
         RoomDTO roomDTO = roomService.update(room, room_id, image_name);
         return ResponseEntity.status(HttpStatus.OK).body(roomDTO);
+    }
+
+    @DeleteMapping("/{room_id}")
+    public ResponseEntity<List<RoomDTO>> deleteById(
+        @PathVariable Integer room_id,
+        @RequestParam(value = "hotel_id", required = true) Integer hotel_id
+    ) {
+        List<RoomDTO> roomDTOs = roomService.deleteById(hotel_id, room_id);
+        return ResponseEntity.status(HttpStatus.OK).body(roomDTOs);
     }
 }

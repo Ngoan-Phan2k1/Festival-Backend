@@ -3,10 +3,12 @@ package com.cit.festival.hotel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cit.festival.StringUtils;
 import com.cit.festival.exception.HotelException;
 import com.cit.festival.exception.NotFoundException;
 import com.cit.festival.exception.RoomException;
@@ -24,40 +26,33 @@ import jakarta.transaction.Transactional;
 @Service
 public class HotelService {
     
-    @Autowired
-    private HotelRepository hotelRepository;
+    private final HotelRepository hotelRepository;
+    private final RoomRepository roomRepository;
+    private final ImageService imageService;
 
-    @Autowired
-    private RoomRepository roomRepository;
-
-    @Autowired
-    private ImageService imageService;
+    public HotelService(
+        HotelRepository hotelRepository,
+        RoomRepository roomRepository,
+        ImageService imageService
+    ) {
+        this.hotelRepository = hotelRepository;
+        this.roomRepository = roomRepository;
+        this.imageService = imageService;
+    }
 
     @Transactional
     public List<HotelDTO> findAll() {
         List<Hotel> hotels = hotelRepository.findAll();
         List<HotelDTO> hotelDTOs = new ArrayList<>();
-        for (Hotel hotel : hotels) {
 
-            // List<Image> images = hotel.getImages();
-            // List<ImageDTO> imageDTOs = new ArrayList<>();
-            // for (Image image : images) {
-            //     ImageDTO imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
-            //     imageDTOs.add(imageDTO);
-            // }
-            Image image = hotel.getImage();
-            ImageDTO imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
-            HotelDTO hotelDTO = new HotelDTO(
-                hotel.getId(),
-                hotel.getName(),
-                hotel.getLocation(),
-                hotel.getIntroduce(),
-                hotel.getServices(),
-                //hotel.getRooms(),
-                imageDTO
-            );
-            hotelDTOs.add(hotelDTO);
-        }
+        hotelDTOs = hotels.stream()
+            .map(hotel -> {
+                Image image = hotel.getImage();
+                ImageDTO imageDTO = StringUtils.createImageDTO(image);
+
+                return StringUtils.createHotelDTO(hotel, imageDTO);
+            })
+            .collect(Collectors.toList());
 
         return hotelDTOs;
     }
@@ -65,31 +60,16 @@ public class HotelService {
     @Transactional
     public HotelDTO findById(Integer id) {
         
-        Optional<Hotel> hotelDB = hotelRepository.findById(id);
-        if (hotelDB.isPresent()) {
-
-            // List<Image> images = hotelDB.get().getImages();
-            // List<ImageDTO> imageDTOs = new ArrayList<>();
-            // for (Image image : images) {
-            //     ImageDTO imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
-            //     imageDTOs.add(imageDTO);
-            // }
-            Image image = hotelDB.get().getImage();
+        Optional<Hotel> optHotel = hotelRepository.findById(id);
+        if (optHotel.isPresent()) {
+            Hotel hotelDB = optHotel.get();
+            Image image = hotelDB.getImage();
             ImageDTO imageDTO = null;
             if (image != null){
-                imageDTO = new ImageDTO(image.getId(), image.getName(), image.getType());
+                imageDTO = StringUtils.createImageDTO(image);
             }
-              
 
-            HotelDTO hotelDTO = new HotelDTO(
-                hotelDB.get().getId(),
-                hotelDB.get().getName(),
-                hotelDB.get().getLocation(),
-                hotelDB.get().getIntroduce(),
-                hotelDB.get().getServices(),
-                //hotelDB.get().getRooms(),
-                imageDTO
-            );
+            HotelDTO hotelDTO = StringUtils.createHotelDTO(hotelDB, imageDTO);      
             return hotelDTO;
            
         }
@@ -100,28 +80,26 @@ public class HotelService {
         return hotelRepository.findByName(name);
     }
 
-    //@Transactional
+    @Transactional
     public HotelDTO add(Hotel hotel, String imageName) {
         Boolean hotelDB = hotelRepository.existsByName(hotel.getName());
         if (hotelDB) {
             throw new HotelException("Khách sạn đã tồn tại");
         }
 
-        Optional<Image> image = imageService.findByName(imageName);
-        if (!image.isPresent()) {
+        Optional<Image> optImage = imageService.findByName(imageName);
+        if (!optImage.isPresent()) {
             throw new NotFoundException("Ảnh không tồn tại");
         }
-        ImageDTO imageDTO = new ImageDTO(image.get().getId(), image.get().getName(), image.get().getType());
-        hotel.setImage(image.get());
+
+        Image image = optImage.get();
+        ImageDTO imageDTO = StringUtils.createImageDTO(image);
+
+        hotel.setImage(image);
         Hotel hotelSave = hotelRepository.save(hotel);
-        HotelDTO hotelDTO = new HotelDTO(
-           hotelSave.getId(),
-           hotelSave.getName(),
-           hotelSave.getLocation(),
-           hotelSave.getIntroduce(),
-           hotelSave.getServices(),
-           imageDTO
-        );
+
+        HotelDTO hotelDTO = StringUtils.createHotelDTO(hotelSave, imageDTO);
+
         return hotelDTO;
     }
 
@@ -137,39 +115,36 @@ public class HotelService {
     @Transactional
     public HotelDTO update(Hotel hotel, Integer hotel_id, String image_name) {
 
-        Optional<Hotel> hotelDB = hotelRepository.findById(hotel_id);
-        if (!hotelDB.isPresent()) {
+        Optional<Hotel> optHotel = hotelRepository.findById(hotel_id);
+        if (!optHotel.isPresent()) {
             throw new NotFoundException("Không tìm thấy khách sạn");
         }
 
         Optional<Image> new_image = imageService.findByName(image_name);
         Image imageUpdate = null;
         ImageDTO imageDTO = null;
+        Hotel hotelDB = optHotel.get();
         if (!new_image.isPresent()) {
-            imageUpdate = hotelDB.get().getImage();  //Lấy lại ảnh cũ nếu ko update ảnh mới
-            imageDTO = new ImageDTO(imageUpdate.getId(), imageUpdate.getName(), imageUpdate.getType());
+            imageUpdate = hotelDB.getImage();  //Lấy lại ảnh cũ nếu ko update ảnh mới
+            imageDTO = StringUtils.createImageDTO(imageUpdate);
         }
         else {
             imageUpdate = new_image.get();
-            imageDTO = new ImageDTO(new_image.get().getId(), new_image.get().getName(), new_image.get().getType());  
+            imageDTO = StringUtils.createImageDTO(imageUpdate);
+            
         }
         
-        hotelDB.get().setName(hotel.getName());
-        hotelDB.get().setIntroduce(hotel.getIntroduce());
-        hotelDB.get().setLocation(hotel.getLocation());
-        hotelDB.get().setServices(hotel.getServices());
-        hotelDB.get().setTours(hotel.getTours());
-        hotelDB.get().setImage(imageUpdate);
+        hotelDB.setName(hotel.getName());
+        hotelDB.setIntroduce(hotel.getIntroduce());
+        hotelDB.setLocation(hotel.getLocation());
+        hotelDB.setServices(hotel.getServices());
+        hotelDB.setTours(hotel.getTours());
+        hotelDB.setImage(imageUpdate);
 
-        Hotel hotel_save = hotelRepository.save(hotelDB.get());
-        HotelDTO hotelDTO = new HotelDTO(
-           hotel_save.getId(),
-           hotel_save.getName(),
-           hotel_save.getLocation(),
-           hotel_save.getIntroduce(),
-           hotel_save.getServices(),
-           imageDTO
-        );
+        Hotel hotel_save = hotelRepository.save(hotelDB);
+
+        HotelDTO hotelDTO = StringUtils.createHotelDTO(hotel_save, imageDTO);
+
         return hotelDTO;
     }
 

@@ -29,6 +29,10 @@ public class ScheduleResource {
 
     @Autowired
     private ScheduleService scheduleService;
+
+    public ScheduleResource(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
+    }
     
     @PostMapping
     public ResponseEntity<ScheduleDTO> add(

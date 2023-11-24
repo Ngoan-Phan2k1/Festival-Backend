@@ -50,8 +50,6 @@ public class Festival {
     @NotNull(message = "toDate cannot be null")
     private LocalDate toDate;   // Ngày kết thúc lễ hội (dương lịch)
 
-
-
     //Bidirectional
     // @JsonIgnore
     // @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
