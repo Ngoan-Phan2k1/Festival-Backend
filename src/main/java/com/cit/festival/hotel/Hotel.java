@@ -53,8 +53,8 @@ public class Hotel {
     @Column(length = 1000, nullable = false)
     private String introduce;
 
-    @NotNull(message = "Services cannot be null")
-    private List<String> services;
+    // @NotNull(message = "Services cannot be null")
+    // private List<String> services;
 
     // @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     // @JoinColumn(name = "hotel_id")
@@ -64,9 +64,11 @@ public class Hotel {
     // @JsonIdentityInfo(
     //     generator = ObjectIdGenerators.PropertyGenerator.class,
     //     property = "id")
-    @JsonIgnore
-    @ManyToMany(mappedBy = "hotels")
-    private List<Tour> tours = new ArrayList<>();
+
+
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "hotels")
+    // private List<Tour> tours = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_id", nullable = true)

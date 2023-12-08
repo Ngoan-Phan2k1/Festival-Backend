@@ -12,6 +12,7 @@ import com.cit.festival.room.Room;
 import com.cit.festival.tour.Tour;
 import com.cit.festival.tourist.Tourist;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -55,7 +56,7 @@ public class BookedTour {
 
     private String note;
 
-    private Integer num_room;
+    //private Integer num_room;
 
     @NotEmpty(message = "Phone cannot be empty")
     @Pattern(regexp = "^[0-9]{10}$", message = "Số điện thoại không hợp lệ")
@@ -69,9 +70,9 @@ public class BookedTour {
     @NotNull(message = "Status cannot be empty")
     private Integer status = 0;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Room room;
+    // @ManyToOne
+    // @JoinColumn(name = "room_id")
+    // private Room room;
 
     @ManyToOne
     @JoinColumn(name = "tour_id", nullable = false) // Tên cột khoá ngoại
@@ -85,4 +86,7 @@ public class BookedTour {
 
     @CreationTimestamp
     private LocalDateTime dateOfBooking; // Thêm trường này
+
+    @Column(name = "is_deleted", nullable = true)
+    private boolean isDeleted;
 }

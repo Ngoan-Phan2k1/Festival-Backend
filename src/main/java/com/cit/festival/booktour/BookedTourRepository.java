@@ -12,10 +12,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookedTourRepository extends JpaRepository<BookedTour, Integer> {
     
-    Optional<BookedTour> findByTourIdAndTouristId(Integer tourId, Integer touristId);
-    List<BookedTour> findAllByTouristId(Integer touristId);
+    //Optional<BookedTour> findByTourIdAndTouristId(Integer tourId, Integer touristId);
 
-    @Query("SELECT b FROM BookedTour b WHERE b.id = :id")
+    List<BookedTour> findAllByIsDeletedFalse();
+
+    Optional<BookedTour> findByTourIdAndTouristIdAndIsDeletedFalse(Integer tourId, Integer touristId);
+
+
+    //List<BookedTour> findAllByTouristId(Integer touristId);
+
+    List<BookedTour> findAllByTouristIdAndIsDeletedFalse(Integer touristId);
+
+    @Query("SELECT b FROM BookedTour b WHERE b.id = :id AND b.isDeleted = false")
     Optional<BookedTour> findById(@Param("id") Integer id);
 }
 

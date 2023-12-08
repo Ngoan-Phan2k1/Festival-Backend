@@ -82,27 +82,27 @@ public class Tour {
     @Builder.Default
     private Boolean active = true;
 
-    // @PrePersist
-    // public void prePersist() {
-    //     this.active = true;
-    // }
 
-    @ManyToOne
-    @JoinColumn(name = "festival_id", nullable = false) // Tên cột khoá ngoại
-    @NotNull(message = "Festival cannot be null")
-    private Festival festival;
+    // @ManyToOne
+    // @JoinColumn(name = "festival_id", nullable = false) // Tên cột khoá ngoại
+    // @NotNull(message = "Festival cannot be null")
+    // private Festival festival;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_id", nullable = true)
     private Image image;
 
-    @ManyToMany
-    @JoinTable(
-        name = "tour_hotel",
-        joinColumns = @JoinColumn(name="tour_id"),
-        inverseJoinColumns = @JoinColumn(name="hotel_id")
-    )
-    private List<Hotel> hotels = new ArrayList<>();
+    // @ManyToMany
+    // @JoinTable(
+    //     name = "tour_hotel",
+    //     joinColumns = @JoinColumn(name="tour_id"),
+    //     inverseJoinColumns = @JoinColumn(name="hotel_id")
+    // )
+    // private List<Hotel> hotels = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "hotel_id", nullable = true)
+    private Hotel hotel;
 
     
     // @Builder.Default

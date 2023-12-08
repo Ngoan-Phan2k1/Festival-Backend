@@ -64,8 +64,7 @@ public class ScheduleService {
         if (image.isPresent()) {
             //schedule.setImage(image.get());
             imageDB = image.get();
-            imageDTO = StringUtils.createImageDTO(imageDB);
-           
+            imageDTO = StringUtils.createImageDTO(imageDB);  
         }
          
         schedule.setImage(imageDB);

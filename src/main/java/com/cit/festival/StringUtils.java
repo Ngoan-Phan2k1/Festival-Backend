@@ -2,8 +2,12 @@ package com.cit.festival;
 
 import java.util.List;
 
+import com.cit.festival.FestivalContent.FestivalContent;
+import com.cit.festival.FestivalContent.FestivalContentDTO;
 import com.cit.festival.booktour.BookedTour;
 import com.cit.festival.booktour.BookedTourDTO;
+import com.cit.festival.festival.Festival;
+import com.cit.festival.festival.FestivalDTO;
 import com.cit.festival.hotel.Hotel;
 import com.cit.festival.hotel.HotelDTO;
 import com.cit.festival.image.Image;
@@ -38,11 +42,12 @@ public final class StringUtils {
     public static TourDTO createTourDTO(
         Tour tour,
         ImageDTO imageDTO,
-        List<HotelDTO> hotelDTOs
+        //List<HotelDTO> hotelDTOs
+        HotelDTO hotelDTO
     ) {
         return TourDTO.builder()
             .id(tour.getId())
-            .festival_id(tour.getFestival().getId())
+            //.festival_id(tour.getFestival().getId())
             .name(tour.getName())
             .fromWhere(tour.getFromWhere())
             .toWhere(tour.getToWhere())
@@ -56,14 +61,14 @@ public final class StringUtils {
             .booked(tour.getBooked())
             .active(tour.getActive())
             .imageDTO(imageDTO)
-            .hotelDTOs(hotelDTOs)
+            //.hotelDTOs(hotelDTOs)
+            .hotelDTO(hotelDTO)
             .build();
     }
     
     public static BookedTourDTO createBookedTourDTO(
         BookedTour bookedTour, 
-        TourDTO tourDTO, 
-        RoomDTO roomDTO) 
+        TourDTO tourDTO) 
     {
         return BookedTourDTO.builder()
             .booked_id(bookedTour.getId())
@@ -75,13 +80,14 @@ public final class StringUtils {
             .email(bookedTour.getEmail())
             .address(bookedTour.getAddress())
             .note(bookedTour.getNote())
-            .num_room(bookedTour.getNum_room())
+            //.num_room(bookedTour.getNum_room())
             .phone(bookedTour.getPhone())
             .isCheckout(bookedTour.getIsCheckout())
             .status(bookedTour.getStatus())
             .dateOfBooking(bookedTour.getDateOfBooking())
             .tourDto(tourDTO)
-            .roomDtO(roomDTO)
+            //.roomDtO(roomDTO)
+            .isDeleted(bookedTour.isDeleted())
             .build();    
     }
 
@@ -94,7 +100,7 @@ public final class StringUtils {
             .name(hotel.getName())
             .location(hotel.getLocation())
             .introduce(hotel.getIntroduce())
-            .services(hotel.getServices())
+            //.services(hotel.getServices())
             .imageDTO(imageDTO)
             .build();
     }
@@ -153,6 +159,33 @@ public final class StringUtils {
                     .dateOfCheckout(payment.getDateOfCheckout())
                     .tourDTO(tourDTO)
                     .build();
+    }
+
+    public static FestivalDTO createFestivalDTO(
+        Festival festival,
+        ImageDTO imageDTO,
+        List<FestivalContentDTO> festivalContentDTOs
+    ) {
+        return FestivalDTO.builder()
+                    .id(festival.getId())
+                    .blogName(festival.getBlogName())
+                    .dateOfPost(festival.getDateOfPost())
+                    .imageDTO(imageDTO)
+                    .festivalContentDTOs(festivalContentDTOs)
+                    .build();
+    }
+
+    public static FestivalContentDTO createFestivalContentDTO(
+        FestivalContent festivalContent,
+        ImageDTO imageDTO
+    ) {
+        return FestivalContentDTO.builder()
+                                .id(festivalContent.getId())
+                                .festival_id(festivalContent.getFestival().getId())
+                                .name(festivalContent.getName())
+                                .content(festivalContent.getContent())
+                                .imageDTO(imageDTO)
+                                .build();
     }
 
 }

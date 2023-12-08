@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 public class TourDTO {
 
     private Integer id;
-    private Integer festival_id;
+    //private Integer festival_id;
     private String name;
     private String fromWhere;
     private String toWhere;
@@ -43,7 +43,8 @@ public class TourDTO {
     private Integer booked;
     private boolean active;
     private ImageDTO imageDTO;
-    List<HotelDTO> hotelDTOs;
+    //List<HotelDTO> hotelDTOs;
+    HotelDTO hotelDTO;
 
     @AssertTrue(message = "fromDate must be before toDate")
     private boolean isFromBeforeTo() {

@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 import com.cit.festival.StringUtils;
 import com.cit.festival.exception.BookedTourException;
 import com.cit.festival.exception.NotFoundException;
-import com.cit.festival.hotel.HotelDTO;
-import com.cit.festival.image.Image;
-import com.cit.festival.image.ImageDTO;
 import com.cit.festival.payment.Payment;
 import com.cit.festival.payment.PaymentRepository;
 import com.cit.festival.room.RoomDTO;
@@ -63,9 +60,13 @@ public class BookedTourService {
             throw new NotFoundException("Không tìm thấy người đặt" );
         }
 
-        bookedTourRepository
-            .findByTourIdAndTouristId(tourDTO.getId(), touristDTO.getId())
-            .orElseThrow(() -> new NotFoundException("Bạn đã đặt tour này, vui lòng kiểm tra lại"));
+        // bookedTourRepository
+        //     .findByTourIdAndTouristIdAndIsDeletedFalse(tourDTO.getId(), touristDTO.getId())
+        //     .orElseThrow(() -> new NotFoundException("Bạn đã đặt tour này, vui lòng kiểm tra lại"));
+        Optional<BookedTour> bookedTourDBCheck = bookedTourRepository.findByTourIdAndTouristIdAndIsDeletedFalse(tourDTO.getId(), touristDTO.getId());
+        if (bookedTourDBCheck.isPresent()) {
+            throw new NotFoundException("Bạn đã đặt tour này, vui lòng kiểm tra lại");
+        }
 
         int bookedAdult = bookedTour.getBookedAdult();
         int bookedChild = bookedTour.getBookedChild();
@@ -83,23 +84,26 @@ public class BookedTourService {
         }
 
         TourDTO tourUpdate = tourService.updateTourBooked(tourDTO.getId(), bookedTotal + currentBooked);
-        RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+        //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+
+        bookedTour.setDeleted(false);
         BookedTour bookedTourDB = bookedTourRepository.save(bookedTour);
         
         BookedTourDTO bookedTourDTO = StringUtils
-            .createBookedTourDTO(bookedTourDB, tourUpdate, roomDTO);
+            .createBookedTourDTO(bookedTourDB, tourUpdate);
 
         return bookedTourDTO;
     }
 
+    @Transactional
     public List<BookedTourDTO> findAll() {
-        List<BookedTour> bookedTours = bookedTourRepository.findAll();
+        List<BookedTour> bookedTours = bookedTourRepository.findAllByIsDeletedFalse();
         List<BookedTourDTO> bookedTourDTOs = new ArrayList<>();
 
         bookedTourDTOs = bookedTours.stream()
             .map(bookedTour -> {
                 Optional <TourDTO> optTourDTO = tourService.findById(bookedTour.getTour().getId());
-                RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+                //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
 
                 Integer touristId;
                 if (bookedTour.getTourist() != null) {
@@ -108,7 +112,7 @@ public class BookedTourService {
                 else {
                     touristId = null;
                 }
-                return StringUtils.createBookedTourDTO(bookedTour, optTourDTO.get(), roomDTO);
+                return StringUtils.createBookedTourDTO(bookedTour, optTourDTO.get());
             })
             .collect(Collectors.toList());
 
@@ -118,24 +122,26 @@ public class BookedTourService {
     @Transactional
     public List<BookedTourDTO> findAllByTouristId(Integer touristId) {
 
-        List<BookedTour> bookedTours = bookedTourRepository.findAllByTouristId(touristId);
+        List<BookedTour> bookedTours = bookedTourRepository.findAllByTouristIdAndIsDeletedFalse(touristId);
         List<BookedTourDTO> bookedTourDTOs = new ArrayList<>();
 
         bookedTourDTOs = bookedTours.stream()
             .map(bookedTour -> {
 
                 Optional <TourDTO> optTourDTO = tourService.findById(bookedTour.getTour().getId());
-                RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
-                Integer tourist_id;
-                if (bookedTour.getTourist() != null) {
-                    tourist_id = bookedTour.getTourist().getId();
-                }
-                else {
-                    tourist_id = null;
-                }
+                //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+                Integer tourist_id = bookedTour.getTourist().getId();
+
+                // Integer tourist_id;
+                // if (bookedTour.getTourist() != null) {
+                //     tourist_id = bookedTour.getTourist().getId();
+                // }
+                // else {
+                //     tourist_id = null;
+                // }
                 
                 return StringUtils
-                .createBookedTourDTO(bookedTour, optTourDTO.get(), roomDTO);    
+                .createBookedTourDTO(bookedTour, optTourDTO.get());    
             })
             .collect(Collectors.toList());
 
@@ -152,7 +158,7 @@ public class BookedTourService {
         BookedTour bookedTourDB = bookedTourRepository.save(bookedTour);
 
         Optional <TourDTO> optTourDTO = tourService.findById(bookedTourDB.getTour().getId());
-        RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+        //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
         
         Integer touristId = null;
         if (bookedTour.getTourist() != null) {
@@ -160,7 +166,7 @@ public class BookedTourService {
         }
         
         BookedTourDTO bookedTourDTO = StringUtils
-            .createBookedTourDTO(bookedTour, optTourDTO.get(), roomDTO);
+            .createBookedTourDTO(bookedTour, optTourDTO.get());
         return bookedTourDTO;
     }
 
@@ -173,15 +179,15 @@ public class BookedTourService {
         bookedTour.setStatus(status);
         BookedTour bookedTourDB = bookedTourRepository.save(bookedTour);
         Optional <TourDTO> optTourDTO = tourService.findById(bookedTourDB.getTour().getId());
-        RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+        //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
 
-        Integer tourist_id = null;
-        if (bookedTourDB.getTourist() != null) {
-            tourist_id = bookedTourDB.getTourist().getId();
-        }
+        // Integer tourist_id = null;
+        // if (bookedTourDB.getTourist() != null) {
+        //     tourist_id = bookedTourDB.getTourist().getId();
+        // }
 
         BookedTourDTO bookedTourDTO = StringUtils
-            .createBookedTourDTO(bookedTourDB, optTourDTO.get(), roomDTO);
+            .createBookedTourDTO(bookedTourDB, optTourDTO.get());
         return bookedTourDTO;
     }
 
@@ -189,9 +195,9 @@ public class BookedTourService {
         Optional<BookedTour> optBookedTour = bookedTourRepository.findById(id);
         BookedTour bookedTour = optBookedTour.orElseThrow(() -> new NotFoundException("Không tìm thấy tour đã đặt"));
      
-        paymentRepository
-            .findByBookedTourId(id)
-            .orElseThrow(() -> new BookedTourException("Tour này đã được thanh toán"));
+        // paymentRepository
+        //     .findByBookedTourId(id)
+        //     .orElseThrow(() -> new BookedTourException("Tour này đã được thanh toán"));
 
 
         Optional<TourDTO> tourDB = tourService.findById(bookedTour.getTour().getId());
@@ -203,7 +209,9 @@ public class BookedTourService {
         Integer new_booked = tourDB.get().getBooked() - bookedTotal;
 
         tourService.updateTourBooked(bookedTour.getTour().getId(), new_booked);
-        bookedTourRepository.deleteById(id);
+        bookedTour.setDeleted(true);
+        //bookedTourRepository.deleteById(id);
+        bookedTourRepository.save(bookedTour);
         return findAllByTouristId(touristId);
     }
 
@@ -234,16 +242,17 @@ public class BookedTourService {
     public BookedTourDTO findById(Integer id) {
         Optional<BookedTour> optBookedTour = bookedTourRepository.findById(id);
         BookedTour bookedTour = optBookedTour.orElseThrow(() -> new NotFoundException("Không tìm thấy tour đã đặt"));
-        Integer tourist_id = null;
-        if (bookedTour.getTourist() != null) {
-            tourist_id = bookedTour.getTourist().getId();
-        }
+
+        // Integer tourist_id = null;
+        // if (bookedTour.getTourist() != null) {
+        //     tourist_id = bookedTour.getTourist().getId();
+        // }
 
         Optional <TourDTO> optTourDTO = tourService.findById(bookedTour.getTour().getId());
-        RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
+        //RoomDTO roomDTO = roomService.findById(bookedTour.getRoom().getId());
 
         BookedTourDTO bookedTourDTO = StringUtils
-            .createBookedTourDTO(bookedTour, optTourDTO.get(), roomDTO);
+            .createBookedTourDTO(bookedTour, optTourDTO.get());
         
         return bookedTourDTO;
     }

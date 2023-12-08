@@ -51,13 +51,19 @@ public class PaymentService {
             .findById(payment.getBookedTour().getId())
             .orElseThrow(() -> new NotFoundException("Booked tour không tồn tại"));
 
-        paymentRepository
-            .findByVnpTxnRef(payment.getVnp_TxnRef())
-            .orElseThrow(() -> new PaymentException("Thanh toán không hợp lệ"));
+        Optional<Payment> optPayment = paymentRepository.findByVnpTxnRef(payment.getVnp_TxnRef());
+        if (optPayment.isPresent()) {
+            throw new PaymentException("Thanh toán không hợp lệ");
+        }
+
+        optPayment = paymentRepository.findByBookedTourId(payment.getBookedTour().getId());
+        if (optPayment.isPresent()) {
+            throw new PaymentException("Thanh toán không hợp lệ");
+        }
                         
-        paymentRepository
-            .findByBookedTourId(payment.getBookedTour().getId()) //Kiểm tra bảng payment bookedtourId đã được thanh toán chưa
-            .orElseThrow(() -> new PaymentException("Thanh toán không hợp lệ"));
+        // paymentRepository
+        //     .findByBookedTourId(payment.getBookedTour().getId()) //Kiểm tra bảng payment bookedtourId đã được thanh toán chưa
+        //     .orElseThrow(() -> new PaymentException("Thanh toán không hợp lệ"));
         
         bookedTourService.updateBookedTourCheckout(bookedtour.getId(), true);
         bookedTourService.updateBookedTourStatus(bookedtour.getId(), 2);

@@ -130,19 +130,19 @@ public class TouristService {
     @Transactional
     public List<TouristDTO> deleteById(Integer id) {
 
-        Optional<Tourist> optTourist = touristRepository.findById(id);
-        Tourist tourist = optTourist.orElseThrow(() -> new NotFoundException("Không tìm thấy tourist"));
+        // Optional<Tourist> optTourist = touristRepository.findById(id);
+        // Tourist tourist = optTourist.orElseThrow(() -> new NotFoundException("Không tìm thấy tourist"));
         
-        List<BookedTour> bookedTours =  bookedTourRepository.findAllByTouristId(id);
-        bookedTours.stream()
-            .map(booked -> {
-                booked.setTourist(null);
-                return bookedTourRepository.save(booked);
-            })
-            .collect(Collectors.toList());
+        // List<BookedTour> bookedTours =  bookedTourRepository.findAllByTouristId(id);
+        // bookedTours.stream()
+        //     .map(booked -> {
+        //         booked.setTourist(null);
+        //         return bookedTourRepository.save(booked);
+        //     })
+        //     .collect(Collectors.toList());
         
-        userRepository.deleteById(tourist.getUser().getId());
-        touristRepository.deleteById(id);
+        // userRepository.deleteById(tourist.getUser().getId());
+        // touristRepository.deleteById(id);
         return findAll();
     }
 

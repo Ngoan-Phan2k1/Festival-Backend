@@ -37,12 +37,13 @@ public class BookedTourDTO {
     private String email;
     private String address;
     private String note;
-    private Integer num_room;
+    //private Integer num_room;
     private String phone;
     
     private boolean isCheckout;
     private Integer status;
     private LocalDateTime dateOfBooking;
     private TourDTO tourDto;
-    private RoomDTO roomDtO;
+    //private RoomDTO roomDtO;
+    private boolean isDeleted;
 }

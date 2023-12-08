@@ -33,7 +33,7 @@ public class HotelDTO {
     private String name;
     private String location;
     private String introduce;
-    private List<String> services;
+    //private List<String> services;
     //private List<Room> rooms;
     private ImageDTO imageDTO;
 

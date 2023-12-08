@@ -1,5 +1,7 @@
 package com.cit.festival.tour;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +62,18 @@ public class TourResource {
     public ResponseEntity<List<TourDTO>> findAll() {
 
         List<TourDTO> tourDTOs = tourService.findTours();
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTOs);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TourDTO>> findByCondition(
+        @RequestParam(value = "toWhere", required = false) String toWhere,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "priceAdult", required = false) Integer priceAdult
+    ) {
+
+        List<TourDTO> tourDTOs = tourService.findByCondition(toWhere, fromDate, toDate, priceAdult);
         return ResponseEntity.status(HttpStatus.OK).body(tourDTOs);
     }
 

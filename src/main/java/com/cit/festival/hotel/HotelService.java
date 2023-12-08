@@ -137,8 +137,8 @@ public class HotelService {
         hotelDB.setName(hotel.getName());
         hotelDB.setIntroduce(hotel.getIntroduce());
         hotelDB.setLocation(hotel.getLocation());
-        hotelDB.setServices(hotel.getServices());
-        hotelDB.setTours(hotel.getTours());
+        //hotelDB.setServices(hotel.getServices());
+        //hotelDB.setTours(hotel.getTours());
         hotelDB.setImage(imageUpdate);
 
         Hotel hotel_save = hotelRepository.save(hotelDB);
