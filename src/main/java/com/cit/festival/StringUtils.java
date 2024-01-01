@@ -43,7 +43,8 @@ public final class StringUtils {
         Tour tour,
         ImageDTO imageDTO,
         //List<HotelDTO> hotelDTOs
-        HotelDTO hotelDTO
+        HotelDTO hotelDTO,
+        FestivalDTO festivalDTO
     ) {
         return TourDTO.builder()
             .id(tour.getId())
@@ -63,6 +64,7 @@ public final class StringUtils {
             .imageDTO(imageDTO)
             //.hotelDTOs(hotelDTOs)
             .hotelDTO(hotelDTO)
+            .festivalDTO(festivalDTO)
             .build();
     }
     

@@ -108,12 +108,12 @@ public class HotelResource {
         return ResponseEntity.status(HttpStatus.OK).body(hotelDB);
     }
 
-    @DeleteMapping("{hotelId}")
-    public ResponseEntity<List<Hotel>> deleteById(@PathVariable Integer hotelId) {
+    // @DeleteMapping("{hotelId}")
+    // public ResponseEntity<List<Hotel>> deleteById(@PathVariable Integer hotelId) {
 
-        List<Hotel> hotels = hotelService.deleteById(hotelId);
-        return ResponseEntity.status(HttpStatus.OK).body(hotels);
-    }
+    //     List<Hotel> hotels = hotelService.deleteById(hotelId);
+    //     return ResponseEntity.status(HttpStatus.OK).body(hotels);
+    // }
 
     @PutMapping("/{hotel_id}")
     public ResponseEntity<HotelDTO> upDateSchedule(
@@ -123,6 +123,16 @@ public class HotelResource {
     ) {
         HotelDTO hotelDTO = hotelService.update(hotel, hotel_id, image_name);
         return ResponseEntity.status(HttpStatus.OK).body(hotelDTO);
+    }
+
+    @DeleteMapping("/{hotel_id}")
+    public ResponseEntity<List<HotelDTO>> deleteById(
+        @PathVariable Integer hotel_id
+    ) {
+        List<HotelDTO> hotelDTOs = hotelService.deleteById(hotel_id);
+        
+        //return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.OK).body(hotelDTOs);
     }
 
 }

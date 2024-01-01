@@ -53,6 +53,9 @@ public class Hotel {
     @Column(length = 1000, nullable = false)
     private String introduce;
 
+    @Column(name = "is_deleted", nullable = true)
+    private boolean isDeleted;
+
     // @NotNull(message = "Services cannot be null")
     // private List<String> services;
 

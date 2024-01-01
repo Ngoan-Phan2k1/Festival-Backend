@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cit.festival.StringUtils;
+import com.cit.festival.FestivalContent.FestivalContent;
+import com.cit.festival.FestivalContent.FestivalContentDTO;
 import com.cit.festival.booktour.BookedTour;
 import com.cit.festival.exception.NotFoundException;
+import com.cit.festival.festival.Festival;
 import com.cit.festival.hotel.Hotel;
 import com.cit.festival.image.Image;
 import com.cit.festival.image.ImageDTO;
@@ -156,6 +159,19 @@ public class ScheduleService {
         ScheduleDTO scheduleDTO = StringUtils.createScheduleDTO(scheduleUpdate, imageDTO);
 
         return scheduleDTO;
+    }
+
+    @Transactional
+    public List<ScheduleDTO> deleteById(Integer tourId, Integer scheduleId) {
+
+        Optional<Schedule> optSchedule = scheduleRepository.findById(scheduleId);
+        Schedule scheduleDB = optSchedule.orElseThrow(() -> new NotFoundException("Không tìm thấy lịch trình"));
+
+        Optional<Tour> optTour = tourRepository.findById(tourId);
+
+        Tour tourDB = optTour.orElseThrow(() -> new NotFoundException("Không tìm thấy tour"));
+        scheduleRepository.delete(scheduleDB);
+        return findByTourId(tourId);
     }
 
 }

@@ -15,14 +15,33 @@ import org.springframework.stereotype.Repository;
 public interface TourRepository extends JpaRepository<Tour, Integer> {
     
     List<Tour> findAllByOrderById();
+    List<Tour> findAllByIsDeletedFalseOrderById();
+
+    @Query("SELECT t FROM Tour t WHERE t.id = :id AND t.isDeleted = false")
+    Optional<Tour> findById(@Param("id") Integer id);
+
     boolean existsById(Integer id);
+
     List<Tour> findAllByActiveIsTrueOrderById();
+    List<Tour> findAllByActiveIsTrueAndIsDeletedFalseOrderById();
 
     List<Tour> findByToWhereAndFromDateGreaterThanEqualAndToDateLessThanEqualAndPriceAdultLessThanEqual(
         String toWhere, LocalDate fromDate, LocalDate toDate, Integer priceAdult
     );
+    List<Tour> findByToWhereAndFromDateGreaterThanEqualAndToDateLessThanEqualAndPriceAdultLessThanEqualAndIsDeletedFalse(
+        String toWhere, LocalDate fromDate, LocalDate toDate, Integer priceAdult
+    );
 
     Optional<Tour> findByName(String name);
+    Optional<Tour> findByNameAndIsDeletedFalse(String name);
+
+    @Query("SELECT t FROM Tour t WHERE t.festival.id = :festivalId AND t.isDeleted = false")
+    Optional<Tour> findByFestivalId(@Param("festivalId") Integer festivalId);
+
+    Optional<Tour> findByHotelIdAndIsDeletedFalse(Integer hotelId);
+
+    // @Query("SELECT t FROM Tour t WHERE t.festival.id = :festivalId AND t.isDeleted = false")
+    // Optional<Tour> findByFestivalId(@Param("festivalId") Integer festivalId);
 
     // List<Tour> findByToWhereAndFromDateLessThanEqualAndToDateGreaterThanEqualAndPriceAdultLessThanEqual(
     //     String toWhere, LocalDate fromDate, LocalDate toDate, Integer priceAdult

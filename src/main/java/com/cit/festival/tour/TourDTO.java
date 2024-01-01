@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cit.festival.festival.Festival;
+import com.cit.festival.festival.FestivalDTO;
 import com.cit.festival.hotel.HotelDTO;
 import com.cit.festival.image.ImageDTO;
 
@@ -44,7 +45,8 @@ public class TourDTO {
     private boolean active;
     private ImageDTO imageDTO;
     //List<HotelDTO> hotelDTOs;
-    HotelDTO hotelDTO;
+    private HotelDTO hotelDTO;
+    private FestivalDTO festivalDTO;
 
     @AssertTrue(message = "fromDate must be before toDate")
     private boolean isFromBeforeTo() {

@@ -229,13 +229,15 @@ public class BookedTourService {
 
         tourService.updateTourBooked(bookedTour.getTour().getId(), new_booked);
 
-        Optional<Payment> optPayment = paymentRepository.findByBookedTourId(id);
-        if (optPayment.isPresent()) {
-            Payment payment = optPayment.get();
-            payment.setBookedTour(null);
-            paymentRepository.save(payment);
-        }
-        bookedTourRepository.deleteById(id);
+        // Optional<Payment> optPayment = paymentRepository.findByBookedTourId(id);
+        // if (optPayment.isPresent()) {
+        //     Payment payment = optPayment.get();
+        //     payment.setBookedTour(null);
+        //     paymentRepository.save(payment);
+        // }
+        // bookedTourRepository.deleteById(id);
+        bookedTour.setDeleted(true);
+        bookedTourRepository.save(bookedTour);
         return findAll();
     }
 

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cit.festival.booktour.BookedTourDTO;
 import com.cit.festival.exception.NotFoundException;
 
 
@@ -96,6 +97,30 @@ public class TourResource {
         return ResponseEntity.status(HttpStatus.OK).body(tourDTO.get());
     }
 
+    @GetMapping("festival/{festivalId}")
+    public ResponseEntity<TourDTO> findByFestivalId(@PathVariable Integer festivalId) {
+
+        Optional<TourDTO> tourDTO = tourService.findByFestivalId(festivalId);
+
+        if (!tourDTO.isPresent()) {
+            //throw new NotFoundException("Không tìm thấy tour");
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTO.get());
+    }
+
+    @GetMapping("hotel/{hotelId}")
+    public ResponseEntity<TourDTO> findByHotelId(@PathVariable Integer hotelId) {
+
+        Optional<TourDTO> tourDTO = tourService.findByHotelId(hotelId);
+
+        if (!tourDTO.isPresent()) {
+            //throw new NotFoundException("Không tìm thấy tour");
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTO.get());
+    }
+
     @PatchMapping("/{tourId}/{booked}")
     public ResponseEntity<TourDTO> updateTourBooked(
         @PathVariable Integer tourId,
@@ -126,10 +151,12 @@ public class TourResource {
     }
 
     @DeleteMapping("/{tour_id}")
-    public ResponseEntity<?> delete(
+    public ResponseEntity<List<TourDTO>> deleteById(
         @PathVariable Integer tour_id
     ) {
-        tourService.delete(tour_id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        List<TourDTO> tourDTOs = tourService.deleteById(tour_id);
+        
+        //return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.OK).body(tourDTOs);
     }
 }

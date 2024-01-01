@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -100,10 +101,17 @@ public class Tour {
     // )
     // private List<Hotel> hotels = new ArrayList<>();
 
+
     @OneToOne
     @JoinColumn(name = "hotel_id", nullable = true)
     private Hotel hotel;
 
+    @OneToOne
+    @JoinColumn(name = "festival_id", nullable = true)
+    private Festival festival;
+
+    @Column(name = "is_deleted", nullable = true)
+    private boolean isDeleted;
     
     // @Builder.Default
     // private boolean isFromBeforeTo = true;

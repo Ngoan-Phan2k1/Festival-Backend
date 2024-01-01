@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cit.festival.StringUtils;
+import com.cit.festival.booktour.BookedTour;
+import com.cit.festival.booktour.BookedTourDTO;
 import com.cit.festival.exception.NotFoundException;
 import com.cit.festival.festival.Festival;
+import com.cit.festival.festival.FestivalDTO;
 import com.cit.festival.festival.FestivalRepositoty;
 import com.cit.festival.festival.FestivalService;
 import com.cit.festival.hotel.Hotel;
@@ -91,7 +94,7 @@ public class TourService {
         //     .orElseThrow(() -> new NotFoundException("Không tìm thấy lễ hội"));
 
         //tour.setFestival(festival.get()); //sử dụng trong ngữ cảnh bidirectional
-        Optional<Tour> checkTour = tourRepository.findByName(tour.getName());
+        Optional<Tour> checkTour = tourRepository.findByNameAndIsDeletedFalse(tour.getName());
         if (checkTour.isPresent()) {
             throw new NotFoundException("Tour đã tồn tại");
         }
@@ -104,6 +107,9 @@ public class TourService {
         Optional<Hotel> optHotel = hotelRepository.findById(hotel.getId());
         Hotel hotelDB = optHotel.orElseThrow(() -> new NotFoundException("Khách sạn không tồn tại"));
         HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+
+        
+        FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
         // List<Hotel> hotels_save = new ArrayList<Hotel>();
         // List<HotelDTO> hotelDTOs = new ArrayList<HotelDTO>();
@@ -126,8 +132,9 @@ public class TourService {
         tour.setImage(image);
         //tour.setHotels(hotels_save);
         tour.setHotel(hotelDB);
+        tour.setDeleted(false);
         Tour tourDB = tourRepository.save(tour);
-        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO);
+        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO, festivalDTO);
         return tourDTO;
     }
 
@@ -145,12 +152,13 @@ public class TourService {
                 //     .collect(Collectors.toList());
 
                 HotelDTO hotelDTO = hotelService.findById(tour.getHotel().getId());
+                FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
                 Image image = tour.getImage();
                 ImageDTO imageDTO = StringUtils.createImageDTO(image);
 
 
-                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO);
+                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);
             })
             .collect(Collectors.toList());
 
@@ -160,7 +168,7 @@ public class TourService {
     @Transactional
     public List<TourDTO> findTours() {
 
-        List<Tour> tours = tourRepository.findAllByOrderById();
+        List<Tour> tours = tourRepository.findAllByIsDeletedFalseOrderById();
         List<TourDTO> tourDTOs = new ArrayList<>();
 
         tourDTOs = tours.stream()
@@ -171,15 +179,66 @@ public class TourService {
                 //     .collect(Collectors.toList());
 
                 HotelDTO hotelDTO = hotelService.findById(tour.getHotel().getId());
+                FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
                 Image image = tour.getImage();
                 ImageDTO imageDTO = StringUtils.createImageDTO(image);
 
-                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO);    
+                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);    
             })
             .collect(Collectors.toList());
 
         return tourDTOs;
+    }
+
+    @Transactional
+    public Optional<TourDTO> findByFestivalId(Integer id) {
+        
+        Optional<Tour> optTour = tourRepository.findByFestivalId(id);
+        if (optTour.isPresent()) {
+            Tour tour = optTour.get();
+            // List<Hotel> hotels = tour.getHotels();
+            // List<HotelDTO> hotelDTOs = new ArrayList<HotelDTO>();
+            Hotel hotel = tour.getHotel();
+            HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+            FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
+
+            // hotelDTOs = hotels.stream()
+            //     .map(hotel -> hotelService.findById(hotel.getId()))
+            //     .collect(Collectors.toList());
+
+            Image image = tour.getImage();
+            ImageDTO imageDTO = StringUtils.createImageDTO(image);
+
+            TourDTO tourDTO =  StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);
+            return Optional.of(tourDTO);
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<TourDTO> findByHotelId(Integer id) {
+        
+        Optional<Tour> optTour = tourRepository.findByHotelIdAndIsDeletedFalse(id);
+        if (optTour.isPresent()) {
+            Tour tour = optTour.get();
+            // List<Hotel> hotels = tour.getHotels();
+            // List<HotelDTO> hotelDTOs = new ArrayList<HotelDTO>();
+            Hotel hotel = tour.getHotel();
+            HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+            FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
+
+            // hotelDTOs = hotels.stream()
+            //     .map(hotel -> hotelService.findById(hotel.getId()))
+            //     .collect(Collectors.toList());
+
+            Image image = tour.getImage();
+            ImageDTO imageDTO = StringUtils.createImageDTO(image);
+
+            TourDTO tourDTO =  StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);
+            return Optional.of(tourDTO);
+        }
+        return Optional.empty();
     }
 
     @Transactional
@@ -192,6 +251,7 @@ public class TourService {
             // List<HotelDTO> hotelDTOs = new ArrayList<HotelDTO>();
             Hotel hotel = tour.getHotel();
             HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+            FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
             // hotelDTOs = hotels.stream()
             //     .map(hotel -> hotelService.findById(hotel.getId()))
@@ -200,7 +260,7 @@ public class TourService {
             Image image = tour.getImage();
             ImageDTO imageDTO = StringUtils.createImageDTO(image);
 
-            TourDTO tourDTO =  StringUtils.createTourDTO(tour, imageDTO, hotelDTO);
+            TourDTO tourDTO =  StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);
             return Optional.of(tourDTO);
         }
         return Optional.empty();
@@ -224,12 +284,13 @@ public class TourService {
 
         Hotel hotel = tourDB.getHotel();
         HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+        FestivalDTO festivalDTO = festivalService.findById(tourDB.getFestival().getId());
 
         // hotelDTOs = hotels.stream()
         //         .map(hotel -> hotelService.findById(hotel.getId()))
         //         .collect(Collectors.toList());
 
-        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO);
+        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO, festivalDTO);
         
         return tourDTO;
     }
@@ -252,12 +313,13 @@ public class TourService {
 
         Hotel hotel = tourDB.getHotel();
         HotelDTO hotelDTO = hotelService.findById(hotel.getId());
+        FestivalDTO festivalDTO = festivalService.findById(tourDB.getFestival().getId());
 
         // hotelDTOs = hotels.stream()
         //     .map(hotel -> hotelService.findById(hotel.getId()))
         //     .collect(Collectors.toList());
 
-        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO);
+        TourDTO tourDTO =  StringUtils.createTourDTO(tourDB, imageDTO, hotelDTO, festivalDTO);
 
         return tourDTO;
     }
@@ -276,6 +338,10 @@ public class TourService {
         Optional<Hotel> optHotel = hotelRepository.findById(hotel.getId());
         Hotel hotelDB = optHotel.orElseThrow(() -> new NotFoundException("Khách sạn không tồn tại"));
         HotelDTO hotelDTO = hotelService.findById(hotelDB.getId());
+
+        Optional<Festival> optFestival = festivalRepositoty.findById(tour.getFestival().getId());
+        Festival festivalDB = optFestival.orElseThrow(() -> new NotFoundException("Lễ hội không tồn tại"));
+        FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
         // List<Hotel> hotels_save = new ArrayList<Hotel>();
         // List<HotelDTO> hotelDTOs = new ArrayList<HotelDTO>();
@@ -319,10 +385,11 @@ public class TourService {
         //tourDB.setFestival(festival);
         //tourDB.setHotels(hotels_save);
         tourDB.setHotel(hotelDB);
+        tourDB.setFestival(festivalDB);
         tourDB.setImage(imageUpdate);
 
         Tour tour_save = tourRepository.save(tourDB);
-        TourDTO tourDTO =  StringUtils.createTourDTO(tour_save, imageDTO, hotelDTO);
+        TourDTO tourDTO =  StringUtils.createTourDTO(tour_save, imageDTO, hotelDTO, festivalDTO);
         return tourDTO;
     }
 
@@ -335,7 +402,7 @@ public class TourService {
         Integer priceAdult
     ) {
 
-        List<Tour> tours = tourRepository.findByToWhereAndFromDateGreaterThanEqualAndToDateLessThanEqualAndPriceAdultLessThanEqual(toWhere, fromDate, toDate, priceAdult);
+        List<Tour> tours = tourRepository.findByToWhereAndFromDateGreaterThanEqualAndToDateLessThanEqualAndPriceAdultLessThanEqualAndIsDeletedFalse(toWhere, fromDate, toDate, priceAdult);
         
         //List<Tour> tours = tourRepository.findAll();
         List<TourDTO> tourDTOs = new ArrayList<>();
@@ -348,20 +415,32 @@ public class TourService {
                 //     .collect(Collectors.toList());
 
                 HotelDTO hotelDTO = hotelService.findById(tour.getHotel().getId());
+                FestivalDTO festivalDTO = festivalService.findById(tour.getFestival().getId());
 
                 Image image = tour.getImage();
                 ImageDTO imageDTO = StringUtils.createImageDTO(image);
 
-                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO);    
+                return StringUtils.createTourDTO(tour, imageDTO, hotelDTO, festivalDTO);    
             })
             .collect(Collectors.toList());
 
         return tourDTOs;
     }
     
+    @Transactional
+    public List<TourDTO> deleteById(Integer id) {
 
-    public void delete(Integer id) {
-        tourRepository.deleteById(id);
+        Optional<Tour> optTour = tourRepository.findById(id);
+        Tour tourDB = optTour.orElseThrow(() -> new NotFoundException("Không tìm thấy tour"));
+     
+        // paymentRepository
+        //     .findByBookedTourId(id)
+        //     .orElseThrow(() -> new BookedTourException("Tour này đã được thanh toán"));
+
+
+        tourDB.setDeleted(true);
+        tourRepository.save(tourDB);
+        return findTours();
     }
 
 }

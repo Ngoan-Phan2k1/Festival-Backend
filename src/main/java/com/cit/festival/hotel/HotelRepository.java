@@ -15,8 +15,13 @@ import com.cit.festival.room.Room;
 public interface HotelRepository extends JpaRepository<Hotel, Integer>  {
     
     Boolean existsByName(String name);
-
+    Boolean existsByNameAndIsDeletedFalse(String name);
     Optional<Hotel> findByName(String name);
+    Optional<Hotel> findByNameAndIsDeletedFalse(String name);
+    List<Hotel> findAllByIsDeletedFalseOrderById();
+    @Query("SELECT h FROM Hotel h WHERE h.id = :id AND h.isDeleted = false")
+    Optional<Hotel> findById(@Param("id") Integer id);
+
     
 
     // @Query("SELECT h FROM Hotel h " +

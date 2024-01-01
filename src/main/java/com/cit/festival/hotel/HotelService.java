@@ -20,6 +20,7 @@ import com.cit.festival.room.RoomDTO;
 import com.cit.festival.room.RoomRepository;
 import com.cit.festival.schedule.Schedule;
 import com.cit.festival.tour.Tour;
+import com.cit.festival.tour.TourDTO;
 
 import jakarta.transaction.Transactional;
 
@@ -42,7 +43,7 @@ public class HotelService {
 
     @Transactional
     public List<HotelDTO> findAll() {
-        List<Hotel> hotels = hotelRepository.findAll();
+        List<Hotel> hotels = hotelRepository.findAllByIsDeletedFalseOrderById();
         List<HotelDTO> hotelDTOs = new ArrayList<>();
 
         hotelDTOs = hotels.stream()
@@ -82,7 +83,7 @@ public class HotelService {
 
     @Transactional
     public HotelDTO add(Hotel hotel, String imageName) {
-        Boolean hotelDB = hotelRepository.existsByName(hotel.getName());
+        Boolean hotelDB = hotelRepository.existsByNameAndIsDeletedFalse(hotel.getName());
         if (hotelDB) {
             throw new HotelException("Khách sạn đã tồn tại");
         }
@@ -96,6 +97,7 @@ public class HotelService {
         ImageDTO imageDTO = StringUtils.createImageDTO(image);
 
         hotel.setImage(image);
+        hotel.setDeleted(false);
         Hotel hotelSave = hotelRepository.save(hotel);
 
         HotelDTO hotelDTO = StringUtils.createHotelDTO(hotelSave, imageDTO);
@@ -103,14 +105,6 @@ public class HotelService {
         return hotelDTO;
     }
 
-    public List<Hotel> deleteById(Integer id) {
-        Boolean hotelDB = hotelRepository.existsById(id);
-        if (!hotelDB) {
-            throw new HotelException("Không tìm thấy khách sạn");
-        }
-        hotelRepository.deleteById(id);
-        return hotelRepository.findAll();
-    }
 
     @Transactional
     public HotelDTO update(Hotel hotel, Integer hotel_id, String image_name) {
@@ -146,6 +140,22 @@ public class HotelService {
         HotelDTO hotelDTO = StringUtils.createHotelDTO(hotel_save, imageDTO);
 
         return hotelDTO;
+    }
+
+    @Transactional
+    public List<HotelDTO> deleteById(Integer id) {
+
+        Optional<Hotel> optHotel = hotelRepository.findById(id);
+        Hotel hotelDB = optHotel.orElseThrow(() -> new NotFoundException("Không tìm thấy khách sạn"));
+     
+        // paymentRepository
+        //     .findByBookedTourId(id)
+        //     .orElseThrow(() -> new BookedTourException("Tour này đã được thanh toán"));
+
+
+        hotelDB.setDeleted(true);
+        hotelRepository.save(hotelDB);
+        return findAll();
     }
 
 }

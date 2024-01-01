@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cit.festival.FestivalContent.FestivalContentDTO;
 import com.cit.festival.room.RoomDTO;
 import com.cit.festival.tour.Tour;
 import com.cit.festival.tour.TourDTO;
@@ -67,5 +69,15 @@ public class ScheduleResource {
 
         ScheduleDTO scheduleDTO = scheduleService.update(schedule, schedule_id, image_name);
         return ResponseEntity.status(HttpStatus.OK).body(scheduleDTO);
+    }
+
+    @DeleteMapping("/{schedule_id}")
+    public ResponseEntity<List<ScheduleDTO>> deleteFestivalContent(
+        @PathVariable Integer schedule_id,
+        @RequestParam(value = "tourId", required = true) Integer tourId
+    ) {
+
+        List<ScheduleDTO> scheduleDTOs = scheduleService.deleteById(tourId, schedule_id);
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleDTOs);
     }
 }
