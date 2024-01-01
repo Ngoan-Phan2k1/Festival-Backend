@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Festival {
 
-    @Id // Đánh dấu đây là ID
+    @Id // Đánh dấu đây là ID Festival
     @GeneratedValue(strategy = GenerationType.IDENTITY) // trường tăng tự động
     private Integer id;
 

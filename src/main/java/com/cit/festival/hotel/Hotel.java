@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Hotel {
 
-    @Id // Đánh dấu đây là ID /////////sdddddddddddddddddddddddddddddddddddddddd
+    @Id // Đánh dấu đây là ID
     @GeneratedValue(strategy = GenerationType.IDENTITY) // trường tăng tự động
     private Integer id;
 
